@@ -14,42 +14,51 @@ the previous result. The output should be the numbers 0 to 100000
 printed in order.
   
 */
-
 public class SynchedSplitLoops {
 	static int counter = 0;
 	static Object threadLock = new Object();
-	public static void main(String[] args) {
-		synchronized (threadLock) {
-			Thread t1 = new Thread(() -> {
-				for (int i = 0; i < 100000; i++) {
-					counter++;
-									}
-				
-			});
 
-			Thread t2 = new Thread(() -> {
+	public static void main(String[] args) {
+
+		Thread t1 = new Thread(() -> {
+			synchronized (threadLock) {
+				for (int i = 0; i < 100000; i++) {
+					try {
+						threadLock.wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					counter++;
+					threadLock.notify();
+				}
+			}
+		});
+
+		Thread t2 = new Thread(() -> {
+			synchronized (threadLock) {
 				for (int i = 0; i < 100000; i++) {
 					System.out.println(counter);
-					
-					t1.notify();
+					threadLock.notify();
 					try {
-						t1.wait();
+						threadLock.wait();
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
-			});
-
-			t1.start();
-			t2.start();
-
-			try {
-				t1.join();
-				t2.join();
-			} catch (InterruptedException e) {
-				System.err.println("Could not join threads");
 			}
+		});
+
+		t1.start();
+		t2.start();
+
+		try {
+			t1.join();
+			t2.join();
+		} catch (InterruptedException e) {
+			System.err.println("Could not join threads");
 		}
 	}
 }
