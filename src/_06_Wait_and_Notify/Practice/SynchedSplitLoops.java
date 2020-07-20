@@ -23,13 +23,7 @@ public class SynchedSplitLoops {
 			Thread t1 = new Thread(() -> {
 				for (int i = 0; i < 100000; i++) {
 					counter++;
-					try {
-						
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
+									}
 				
 			});
 
